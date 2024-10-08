@@ -1,0 +1,400 @@
+openapi: 3.1.0
+x-stoplight:
+  id: j2h43tbjbq9p2
+info:
+  title: ProductAPI
+  version: '1.0'
+  summary: ECommerce Platform API
+  description: A comprehensive CRUD API for managing products in an eCommerce platform.
+  license:
+    url: 'http://www.apache.org/license/LICENSE-2.0'
+    name: Apache 2.0
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  '/api/products/{product-id}':
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: product-id
+        in: path
+        required: true
+        description: Product ID
+    get:
+      summary: Get Product Info by Product ID
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '404':
+          description: Product Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '405':
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+      operationId: getProductById
+      description: Retrieve the information of the Product with the matching Product ID.
+      x-stoplight:
+        id: fsf6vdu4rkftu
+      parameters: []
+    patch:
+      summary: Update Product Information
+      tags: []
+      responses:
+        '200':
+          description: Product information Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '405':
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+      operationId: updateProduct
+      x-stoplight:
+        id: vl9w6c17w6t5j
+      description: Update the information of an existing product.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+              description: Update Product Info
+    delete:
+      summary: Delete a Product
+      tags: []
+      responses:
+        '200':
+          description: Product Deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                Example 1:
+                  value: Product Deleted Successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+      operationId: deleteProduct
+      x-stoplight:
+        id: mjeljrxnouioa
+      description: "To delete an existing product.\r\n"
+  /api/product:
+    post:
+      summary: Add a new Product
+      operationId: createProduct
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              examples:
+                Example 1:
+                  value:
+                    productId: 1
+                    name: The Discovery of India
+                    description: Non-Fiction
+                    price: 365
+                    quantityAvailable: 40
+        '400':
+          description: Missing Required Information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '405':
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+              x-examples:
+                Example 1:
+                  name: The Chronicles of Narnia
+                  description: Fiction
+                  price: 120
+                  quantityAvailable: 40
+            examples: {}
+        description: ''
+      description: creates a new Product
+      x-stoplight:
+        id: a15mnbzls9umg
+      parameters: []
+    parameters: []
+  /api/products:
+    get:
+      summary: Get all products
+      tags:
+        - Products
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                x-examples:
+                  Example 1:
+                    - productId: 1
+                      name: The Discovery of India
+                      description: Non-Fiction
+                      price: 365
+                      quantityAvailable: 40
+                    - productId: 2
+                      name: The Adventure
+                      description: Fiction
+                      price: 280
+                      quantityAvailable: 75
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '405':
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+      operationId: getAllProducts
+      x-stoplight:
+        id: h2y1vduk2r3ae
+      parameters: []
+      description: Retrive all products
+    parameters: []
+  '/api/products/{product-id}/applyModification':
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: product-id
+        in: path
+        required: true
+        description: Product ID
+    post:
+      summary: Apply Discount or deduct tax
+      operationId: post-api-product-product-id-applyModification
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '405':
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+      x-stoplight:
+        id: dfrsxnvgmbxyy
+      description: Appy Discount or deduct tax
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  modificationType: discount
+                  modificationValue: 10
+              properties:
+                modificationType:
+                  type: string
+                modificationValue:
+                  type: number
+                  format: double
+components:
+  schemas:
+    GenericResponse:
+      type: object
+      x-examples:
+        Example 1:
+          code: '500'
+          message: Internal Server Error
+      properties:
+        code:
+          type: string
+          pattern: '^[0-9]+$'
+        message:
+          type: string
+    Product:
+      type: object
+      x-examples:
+        Example 1:
+          productId: 1
+          name: The Discovery of India
+          description: Non-Fiction
+          price: 365
+          quantityAvailable: 40
+      description: Product Catalog
+      properties:
+        productId:
+          type: integer
+          format: int64
+          description: Unique Identifier for the product
+          readOnly: true
+        name:
+          type: string
+          description: Product Name
+        description:
+          type: string
+          description: Description of the product
+        price:
+          type: number
+          description: Price of the product
+          format: double
+          minimum: 0
+        quantityAvailable:
+          type: integer
+          description: Available quantity of the product
+          minimum: 0
+    ProductResponse:
+      type: object
+      x-examples:
+        Example 1:
+          product:
+            productId: 1
+            name: Feedom of India
+            description: fiction
+            price: 220
+            quantityAvailable: 25
+          modifiedPrice: 198
+      properties:
+        product:
+          $ref: '#/components/schemas/Product'
+        modifiedPrice:
+          type: number
+          format: double
+  securitySchemes: {}

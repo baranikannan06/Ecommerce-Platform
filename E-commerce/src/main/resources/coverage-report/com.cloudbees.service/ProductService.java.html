@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">e-commerce</a> &gt; <a href="index.source.html" class="el_package">com.cloudbees.service</a> &gt; <span class="el_source">ProductService.java</span></div><h1>ProductService.java</h1><pre class="source lang-java linenums">package com.cloudbees.service;
+
+import static com.cloudbees.util.CommonFunctions.printAsJson;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.cloudbees.controller.ProductAPIDelegate;
+import com.cloudbees.exception.BadRequestException;
+import com.cloudbees.exception.InternalServerErrorException;
+import com.cloudbees.exception.NotFoundException;
+import com.cloudbees.exception.ProductDeletionException;
+import com.cloudbees.exception.ProductSavingException;
+import com.cloudbees.model.Product;
+import com.cloudbees.model.ProductModificationRequest;
+import com.cloudbees.model.ProductResponse;
+import com.cloudbees.repository.ProductRepository;
+import com.cloudbees.util.Constants;
+
+import io.micrometer.common.util.StringUtils;
+
+@Service
+public class ProductService implements ProductAPIDelegate {
+
+	ProductRepository productRepository;
+
+<span class="fc" id="L33">	private final Logger log = LoggerFactory.getLogger(getClass());</span>
+
+	public ProductService(ProductRepository productRepository) {
+<span class="fc" id="L36">		super();</span>
+<span class="fc" id="L37">		this.productRepository = productRepository;</span>
+<span class="fc" id="L38">	}</span>
+
+	@Override
+	public ResponseEntity&lt;Product&gt; createProduct(Product product) {
+
+<span class="fc" id="L43">		Product productDetails = null;</span>
+		try {
+
+<span class="fc" id="L46">			validateProductRequest(product);</span>
+<span class="fc" id="L47">			productDetails = productRepository.save(product);</span>
+<span class="fc" id="L48">		} catch (BadRequestException e) {</span>
+
+<span class="fc" id="L50">			throw new BadRequestException(e.getMessage());</span>
+<span class="fc" id="L51">		} catch (Exception e) {</span>
+
+<span class="fc" id="L53">			log.error(&quot;Exception Occured while adding new Product: {}&quot;, e.getLocalizedMessage());</span>
+<span class="fc" id="L54">			throw new ProductSavingException(&quot;Exception Occured while adding new Product: &quot; + e.getLocalizedMessage());</span>
+<span class="fc" id="L55">		}</span>
+
+<span class="fc" id="L57">		log.info(&quot;Product added Successfully : {}&quot;, printAsJson(productDetails));</span>
+<span class="fc" id="L58">		return ResponseEntity.ok(productDetails);</span>
+	}
+
+	@Override
+	public ResponseEntity&lt;Product&gt; updateProduct(Long id, Product product) {
+
+<span class="fc" id="L64">		Product productDetails = null;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		if (id == null) {</span>
+
+<span class="fc" id="L67">			throw new BadRequestException(&quot;ProductId cannot be null&quot;);</span>
+		}
+		try {
+
+<span class="fc" id="L71">			productDetails = productRepository.findById(id)</span>
+<span class="fc" id="L72">					.orElseThrow(() -&gt; new NotFoundException(Constants.PRODUCT_NOT_FOUND + id));</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">			if (product.getName() != null) {</span>
+<span class="fc" id="L75">				productDetails.setName(product.getName());</span>
+			}
+<span class="fc bfc" id="L77" title="All 2 branches covered.">			if (product.getDescription() != null) {</span>
+<span class="fc" id="L78">				productDetails.setDescription(product.getDescription());</span>
+			}
+<span class="fc bfc" id="L80" title="All 2 branches covered.">			if (product.getPrice() != null) {</span>
+<span class="fc" id="L81">				productDetails.setPrice(product.getPrice());</span>
+			}
+<span class="fc bfc" id="L83" title="All 2 branches covered.">			if (product.getQuantityAvailable() != null) {</span>
+<span class="fc" id="L84">				productDetails.setQuantityAvailable(product.getQuantityAvailable());</span>
+			}
+		}
+
+<span class="nc" id="L88">		catch (BadRequestException e) {</span>
+
+<span class="nc" id="L90">			throw new BadRequestException(e.getMessage());</span>
+<span class="fc" id="L91">		} catch (NotFoundException e) {</span>
+
+<span class="fc" id="L93">			throw new NotFoundException(e.getMessage());</span>
+<span class="nc" id="L94">		} catch (Exception e) {</span>
+
+<span class="nc" id="L96">			log.error(&quot;Exception Occured while updating Product: {}&quot;, e.getLocalizedMessage());</span>
+<span class="nc" id="L97">			throw new ProductSavingException(&quot;Exception Occured while updating Product: &quot; + e.getLocalizedMessage());</span>
+<span class="fc" id="L98">		}</span>
+
+<span class="fc" id="L100">		log.info(&quot;Product updated Successfully : {}&quot;, printAsJson(productDetails));</span>
+<span class="fc" id="L101">		return ResponseEntity.ok(productRepository.save(productDetails));</span>
+	}
+
+	@Override
+	public ResponseEntity&lt;Optional&lt;Product&gt;&gt; getProductById(Long id) {
+		try {
+
+<span class="fc bfc" id="L108" title="All 2 branches covered.">			if (id == null) {</span>
+<span class="fc" id="L109">				throw new BadRequestException(&quot;ProductID cannot be null&quot;);</span>
+			}
+<span class="fc" id="L111">			Optional&lt;Product&gt; productDetails = productRepository.findById(id);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">			if (productDetails.isPresent()) {</span>
+
+<span class="fc" id="L114">				log.info(&quot;ProductDetails retrived for Id {} : {}&quot;, id, printAsJson(productDetails));</span>
+<span class="fc" id="L115">				return ResponseEntity.ok(productDetails);</span>
+			} else {
+<span class="fc" id="L117">				log.info(Constants.PRODUCT_NOT_EXIST, id);</span>
+<span class="fc" id="L118">				return ResponseEntity.notFound().build();</span>
+			}
+<span class="fc" id="L120">		} catch (BadRequestException e) {</span>
+
+<span class="fc" id="L122">			throw new BadRequestException(e.getMessage());</span>
+<span class="nc" id="L123">		} catch (NotFoundException e) {</span>
+
+<span class="nc" id="L125">			throw new NotFoundException(e.getMessage());</span>
+<span class="nc" id="L126">		} catch (Exception e) {</span>
+
+<span class="nc" id="L128">			log.error(&quot;Exception Occured while reading Product:: {}&quot;, e.getLocalizedMessage());</span>
+<span class="nc" id="L129">			throw new InternalServerErrorException(&quot;Exception Occured while reading Product: &quot; + e.getMessage());</span>
+		}
+
+	}
+
+	@Override
+	public ResponseEntity&lt;List&lt;Product&gt;&gt; getAllProducts() {
+
+<span class="fc" id="L137">		List&lt;Product&gt; productList = null;</span>
+		try {
+
+<span class="fc" id="L140">			productList = productRepository.findAll();</span>
+<span class="fc" id="L141">			log.info(&quot;Retrieved all Products : {}&quot;, printAsJson(productList));</span>
+
+<span class="nc" id="L143">		} catch (Exception e) {</span>
+
+<span class="nc" id="L145">			log.error(&quot;Exception Occured while fetching all Products: {}&quot;, e.getLocalizedMessage());</span>
+<span class="nc" id="L146">			throw new InternalServerErrorException(&quot;Exception Occured while fetching all Products: &quot; + e.getMessage());</span>
+<span class="fc" id="L147">		}</span>
+<span class="fc" id="L148">		return ResponseEntity.ok(productList);</span>
+	}
+
+	@Override
+	public ResponseEntity&lt;String&gt; deleteProduct(Long id) {
+
+		try {
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">			if (id == null) {</span>
+<span class="fc" id="L157">				throw new BadRequestException(&quot;ProductID cannot be null&quot;);</span>
+			}
+<span class="fc bfc" id="L159" title="All 2 branches covered.">			if (productRepository.existsById(id)) {</span>
+
+<span class="fc" id="L161">				productRepository.deleteById(id);</span>
+<span class="fc" id="L162">				log.info(&quot;Successfully Deleted Product with ID : {}&quot;, id);</span>
+
+			} else {
+
+<span class="fc" id="L166">				log.info(Constants.PRODUCT_NOT_EXIST, id);</span>
+<span class="fc" id="L167">				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Constants.PRODUCT_NOT_FOUND + id);</span>
+			}
+		}
+
+<span class="fc" id="L171">		catch (BadRequestException e) {</span>
+
+<span class="fc" id="L173">			throw new BadRequestException(e.getMessage());</span>
+<span class="nc" id="L174">		} catch (Exception e) {</span>
+
+<span class="nc" id="L176">			log.error(&quot;Exception Occured while deleting Product: {}&quot;, e.getLocalizedMessage());</span>
+<span class="nc" id="L177">			throw new ProductDeletionException(&quot;Exception Occured while deleting Product: &quot; + e.getMessage());</span>
+<span class="fc" id="L178">		}</span>
+<span class="fc" id="L179">		return ResponseEntity.ok(&quot;Successfully Deleted Product with ID : &quot; + id);</span>
+	}
+
+	private void validateProductRequest(Product product) {
+
+<span class="fc bfc" id="L184" title="All 4 branches covered.">		if (null == product.getQuantityAvailable() || product.getQuantityAvailable() &lt; 0) {</span>
+<span class="fc" id="L185">			throw new BadRequestException(&quot;QuantityAvailable() cannot be null and the value should be minimum 0&quot;);</span>
+		}
+<span class="fc bfc" id="L187" title="All 2 branches covered.">		if (StringUtils.isBlank(product.getName())) {</span>
+<span class="fc" id="L188">			throw new BadRequestException(&quot;Product Name should not be null&quot;);</span>
+		}
+<span class="fc bfc" id="L190" title="All 2 branches covered.">		if (null == product.getPrice()) {</span>
+<span class="fc" id="L191">			throw new BadRequestException(&quot;Price value should not be null&quot;);</span>
+		}
+<span class="fc" id="L193">	}</span>
+
+	@Override
+	public ResponseEntity&lt;ProductResponse&gt; applyModification(Long id, ProductModificationRequest request) {
+<span class="fc" id="L197">		ProductResponse response = new ProductResponse();</span>
+		try {
+<span class="pc bpc" id="L199" title="1 of 4 branches missed.">			if (request.getModificationType() == null || request.getModificationValue() == null) {</span>
+<span class="fc" id="L200">				throw new BadRequestException(&quot;Modification type and value cannot be null&quot;);</span>
+			}
+
+<span class="fc" id="L203">			Optional&lt;Product&gt; productDetails = productRepository.findById(id);</span>
+
+<span class="fc bfc" id="L205" title="All 2 branches covered.">			if (productDetails.isPresent()) {</span>
+<span class="fc" id="L206">				Product product = productDetails.get();</span>
+<span class="fc" id="L207">				response.setProduct(product);</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">				if (Constants.DISCOUNT.equalsIgnoreCase(request.getModificationType())) {</span>
+
+<span class="fc" id="L210">					response.setModifiedPrice(product.getPrice() * (1 - request.getModificationValue() / 100));</span>
+<span class="fc" id="L211">					log.info(&quot;Applied Discount successfully : {}&quot;, printAsJson(response));</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">				} else if (Constants.TAX.equalsIgnoreCase(request.getModificationType())) {</span>
+
+<span class="fc" id="L214">					response.setModifiedPrice(product.getPrice() * (1 + request.getModificationValue() / 100));</span>
+<span class="fc" id="L215">					log.info(&quot;Applied Tax successfully : {}&quot;, printAsJson(response));</span>
+				} else {
+<span class="fc" id="L217">					throw new BadRequestException(&quot;Invalid modification type. Use 'discount' or 'tax'.&quot;);</span>
+				}
+
+<span class="fc" id="L220">				productRepository.save(product);</span>
+<span class="fc" id="L221">				return ResponseEntity.ok(response);</span>
+			} else {
+<span class="fc" id="L223">				log.info(Constants.PRODUCT_NOT_EXIST, id);</span>
+<span class="fc" id="L224">				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);</span>
+			}
+<span class="fc" id="L226">		} catch (BadRequestException e) {</span>
+<span class="fc" id="L227">			return ResponseEntity.badRequest().body(response);</span>
+<span class="nc" id="L228">		} catch (Exception e) {</span>
+<span class="nc" id="L229">			log.error(&quot;Exception Occurred while applying modification to Product: {}&quot;, e.getLocalizedMessage());</span>
+<span class="nc" id="L230">			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
