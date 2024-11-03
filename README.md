@@ -11,7 +11,6 @@ A comprehensive Springboot CRUD API for managing products in an eCommerce platfo
 
 The POJO (Plain Old Java Object) and Controller classes for the API have been automatically generated based on the OpenAPI specification using Stoplight. 
 
-The OpenAPI specification file, which serves as the source for the code generation, is available at https://github.com/baranikannan06/Ecommerce-Platform/blob/feature_ecommerce/src/main/resources/productAPI.yaml
 
 ## Prerequisites
 
