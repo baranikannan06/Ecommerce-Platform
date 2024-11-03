@@ -41,20 +41,7 @@ To get started with the project, follow these steps:
 4. To run the application, use the following Maven command:
  `mvn spring-boot:run`
  
-## Running Tests
 
-To run tests, run the following command
-
-mvn test
-
-
-## Code Quality and Scanning
-
-### Code Scanning Status
-
-The codebase has been scanned using CodeQL, and no code scanning alerts were found.
-
-Also, Used [SonarLint](https://www.sonarlint.org/) in Eclipse IDE for code smell detection.
 
 ## API Reference
 
