@@ -33,7 +33,7 @@ To run this project, you will need to add the following environment variables to
 
 To get started with the project, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/Sindhap/ecommerce-platform.git`
+1. Clone the repository: `git clone https://github.com/baranikannan06/Ecommerce-Platform.git`
 
 2. Navigate to the project directory: `cd <project_directory>`
 
@@ -48,7 +48,6 @@ To run tests, run the following command
 
 mvn test
 
-Coverage Report is available at https://github.com/Sindhap/ecommerce-platform/tree/feature_ecommerce/src/main/resources/coverage-report
 
 ## Code Quality and Scanning
 
